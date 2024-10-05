@@ -10,15 +10,17 @@
 
 
 
-module tx_fsm(TxDDRClk, TxRst, TxRequest, TxByteHS, TxValid,TxDataOut);
+module Tx_FSM(TxByteClk, TxRst, TxRequest,DphyTxState, LPTX_EN, TxReadyHS , TxValid);
+
 
 // Inputs and Outputs
 input TxRst;
-input TxDDRClk;
-input [7:0] TxByteHS;
+input TxByteClk;
+input TxReadyHS;
+input [2:0]DphyTxState;
 input TxRequest;
+input LPTX_EN;
 output TxValid;
-output [7:0] TxDataOut;
 
 
 // States of the FSM
@@ -31,7 +33,6 @@ parameter TX_WAIT_ACK 	= 2'b11; // Wait Acknowledge
 parameter ACK_TIME    	  = 8'h0A;
 
 reg  TxValid_reg;
-reg [7:0] TxByte_reg;
 reg [1:0] tx_state;
 reg [1:0] nxt_state;
 reg [7:0] ack_timer;
@@ -63,13 +64,11 @@ always @ (*) begin
 								begin
 									nxt_state 	<= TX_SEND_DATA;
 									TxValid_reg  	<= 1'b1;
-									TxByte_reg      <= 8'h00;	
 									ack_timer   	<= 8'h00;
 								end
 							else 
 								begin
 									TxValid_reg    <= 1'b0;
-									TxByte_reg     <= 8'h11;
 									ack_timer      <= 8'h00;	
 								end
 						end	
@@ -78,12 +77,10 @@ always @ (*) begin
 						begin
 							if (TxRequest == 1'b0)
 								begin
-									TxByte_reg        <= 8'h00;	
 									nxt_state          <= TX_EOT;
 								end
 							else 
 								begin
-									TxByte_reg     <= TxByteHS;	
 									nxt_state <= TX_SEND_DATA;
 								end
 						end
@@ -92,21 +89,17 @@ always @ (*) begin
 							if (ack_timer == ACK_TIME or Ack_Rcvd) 	// Ack_Rcvd ????
 								begin
 									TxValid_reg     <= 1'b0;
-									TxByte_reg      <= 8'h00;	// send zeros
 									ack_timer	  <= 8'h00;
 									nxt_state 	  <= TX_IDLE;    // stop state
 								end
 							else
 								begin
-
-									TxByte_reg      <= 8'h00;	// send zeros
 									ack_timer   	<= ack_timer + 1;
 								end
 						end
 					default : 
 						begin
 							TxValid_reg    <= 1'b0;
-							TxByte_reg     <= 8'h00;
 							ack_timer      <= 8'h00;
 							nxt_state      <= TX_IDLE;
 						end	
@@ -117,7 +110,6 @@ end
 
 
 
-assign TxDataOut    = TxByte_reg;
 assign TxValid       = TxValid_reg;
 
 

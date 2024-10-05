@@ -6,7 +6,7 @@
 
 module Serializer_8b2b #(parameter WIDTH = 8)(input TxDDRClk, input TxByteClk, input TxRst, input [WIDTH-1:0]DataIn, input serializer_enable, output  ser_b1, output  ser_b2);
 	
-		integer counter;
+		integer counter; 
 		reg [3:0] reg1;
 		reg [3:0] reg2;
 		
