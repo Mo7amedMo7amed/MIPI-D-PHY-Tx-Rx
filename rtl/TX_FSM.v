@@ -21,7 +21,12 @@ input [2:0]DphyTxState;
 input TxRequest;
 input LPTX_EN;
 output TxValid;
-
+// DphyTxState is the state of the HS FSM
+/*	 TX_HS_STOP = 3'b000;
+     TX_HS_GO = 3'b001;        // Transmit HS-0
+     TX_HS_SYNC = 3'b011;
+     TX_HS_DATA = 3'b010;
+     TX_HS_TRAIL = 3'b110;*/
 
 // States of the FSM
 parameter TX_IDLE 	= 2'b00;   
